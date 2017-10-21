@@ -29,7 +29,7 @@ class RaiBlocksBlock extends RaiBlocks
 				$hash = new SplFixedArray(32);
 				for($i = 0; $i < 32; $i++)
 					$hash[$i] = $output[$i];
-				$this->hash = (new Uint())->fromUint8Array($hash);
+				$this->hash = Uint::fromUint8Array($hash);
 				break;
 			
 			case 'receive':
@@ -43,7 +43,7 @@ class RaiBlocksBlock extends RaiBlocks
 				$hash = new SplFixedArray(32);
 				for($i = 0; $i < 32; $i++)
 					$hash[$i] = $output[$i];
-				$this->hash = (new Uint())->fromUint8Array($hash);
+				$this->hash = Uint::fromUint8Array($hash);
 				break;
 			
 			case 'open':
@@ -58,7 +58,7 @@ class RaiBlocksBlock extends RaiBlocks
 				$hash = new SplFixedArray(32);
 				for($i = 0; $i < 32; $i++)
 					$hash[$i] = $output[$i];
-				$this->hash = (new Uint())->fromUint8Array($hash);
+				$this->hash = Uint::fromUint8Array($hash);
 				break;
 			
 			case 'change':
@@ -72,7 +72,7 @@ class RaiBlocksBlock extends RaiBlocks
 				$hash = new SplFixedArray(32);
 				for($i = 0; $i < 32; $i++)
 					$hash[$i] = $output[$i];
-				$this->hash = (new Uint())->fromUint8Array($hash);
+				$this->hash = Uint::fromUint8Array($hash);
 				break;
 			
 			default:
@@ -91,9 +91,9 @@ class RaiBlocksBlock extends RaiBlocks
 		if(!is_numeric($balance) || $balance < 0)
 			throw new InvalidBalanceException('Balance should be an integer greater than 0');
 		
-		$this->previous = (new Uint())->fromHex($previous);
-		$this->destination = (new Uint())->fromHex($pk);
-		$this->balance = (new Uint())->fromDec($balance);
+		$this->previous = Uint::fromHex($previous);
+		$this->destination = Uint::fromHex($pk);
+		$this->balance = Uint::fromDec($balance);
 		$this->type = 'send';
 	}
 	
@@ -104,8 +104,8 @@ class RaiBlocksBlock extends RaiBlocks
 		if(!preg_match('/[0-9A-F]{64}/i', $source))
 			throw new InvalidBlockHashException('Source block hash is not valid.');
 		
-		$this->previous = (new Uint())->fromHex($previous);
-		$this->source = (new Uint())->fromHex($source);
+		$this->previous = Uint::fromHex($previous);
+		$this->source = Uint::fromHex($source);
 		$this->type = 'receive';
 	}
 	
@@ -122,9 +122,9 @@ class RaiBlocksBlock extends RaiBlocks
 			throw new InvalidRaiBlocksAccountException('Representative account is not valid');
 			
 		
-		$this->source = (new Uint())->fromHex($source);
-		$this->representative = (new Uint())->fromHex($r_pk);
-		$this->account = (new Uint())->fromHex($a_pk);
+		$this->source = Uint::fromHex($source);
+		$this->representative = Uint::fromHex($r_pk);
+		$this->account = Uint::fromHex($a_pk);
 		$this->type = 'open';
 		
 	}
@@ -138,8 +138,8 @@ class RaiBlocksBlock extends RaiBlocks
 		
 		if($pk === false)		
 			throw new InvalidRaiBlocksAccountException('Representative account is not valid');
-		$this->previous = (new Uint())->fromHex($previous);
-		$this->representative = (new Uint())->fromHex($pk);
+		$this->previous = Uint::fromHex($previous);
+		$this->representative = Uint::fromHex($pk);
 		$this->type = "change";
 	}
 	

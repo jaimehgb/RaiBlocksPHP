@@ -1,8 +1,7 @@
 <?php
 
 
-//require '../RaiBlocksBlock.php';
-require '../autoload.php';
+require '../RaiBlocksBlock.php';
 
 $block = new RaiBlocksBlock();
 

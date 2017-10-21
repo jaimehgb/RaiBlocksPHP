@@ -18,73 +18,48 @@ class Uint
 		$this->u8 = $this->u4 = $this->u5 = $this->hex = $this->string = false;
 	}
 	
-	public function fromHex($hex)
-	{
-		$this->clean();
-		$this->hex = strtoupper($hex);
-		$this->u8 = $this->hexU8($hex);
-		return $this;
-	}
-	
 	public static function fromHex($hex)
 	{
-		return (new Uint())->fromHex($hex);
-	}
-	
-	public function fromUint8Array($u8)
-	{
-		$this->clean();
-		$this->u8 = $u8;
-		$this->hex = $this->u8Hex($u8);
-		return $this;
+		$ret = new Uint();
+		$ret->hex = strtoupper($hex);
+		$ret->u8 = $ret->hexU8($hex);
+		return $ret;
 	}
 	
 	public static function fromUint8Array($u8)
 	{
-		return (new Uint())->fromUint8Array($u8);
-	}
-	
-	public function fromUint4Array($u4)
-	{
-		$this->clean();
-		$this->u4 = $u4;
-		$this->hex = $this->u4Hex($u4);
-		$this->u8 = $this->u4U8($u4);
-		return $this;
+		$ret = new Uint();
+		$ret->u8 = $u8;
+		$ret->hex = $ret->u8Hex($u8);
+		return $ret;
 	}
 	
 	public static function fromUint4Array($u4)
 	{
-		return (new Uint())->fromUint4Array($u4);
-	}
-	
-	public function fromString($str)
-	{
-		$this->clean();
-		$this->u5 = $this->stringU5($str);
-		$this->string = $str;
-		$this->u4 = $this->u5U4($this->u5);
-		$this->u8 = $this->u4U8($this->u4);
-		return $this;
+		$ret = new Uint();
+		$ret->u4 = $u4;
+		$ret->hex = $ret->u4Hex($u4);
+		$ret->u8 = $ret->u4U8($u4);
+		return $ret;
 	}
 	
 	public static function fromString($str)
 	{
-		return (new Uint())->fromString($str);
-	}
-	
-	public function fromDec($dec)
-	{
-		$this->clean();
-		$this->dec = $dec;
-		$this->hex = decToHex($dec);
-		$this->u8 = $this->hexU8($this->hex);
-		return $this;
+		$ret = new Uint();
+		$ret->u5 = $ret->stringU5($str);
+		$ret->string = $str;
+		$ret->u4 = $ret->u5U4($ret->u5);
+		$ret->u8 = $ret->u4U8($ret->u4);
+		return $ret;
 	}
 	
 	public static function fromDec($dec)
 	{
-		return (new Uint())->fromDec($dec);
+		$ret = new Uint();
+		$ret->dec = $dec;
+		$ret->hex = decToHex($dec);
+		$ret->u8 = $ret->hexU8($ret->hex);
+		return $ret;
 	}
 	
 	public function toHexString()
