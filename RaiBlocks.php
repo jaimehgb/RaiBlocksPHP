@@ -16,9 +16,42 @@ class RaiBlocks
 
 	public static $blockIds = ["invalid" => 0, "not_a_block" => 1, "send" => 2, "receive" => 3, "open" => 4, "change" => 5];
 	
-	public function __construct()
+	public static function checkSig($msg, $sig, $account)
 	{
+		$sig = Uint::fromHex($sig)->toUint8();
+		$msg = Uint::fromHex($msg)->toUint8();
+		$pk = Uint::fromHex(self::keyFromAccount($account))->toUint8();
 		
+		$sm = new SplFixedArray(64 + count($msg));
+		$m = new SplFixedArray(64 + count($msg));
+		for ($i = 0; $i < 64; $i++) $sm[$i] = $sig[$i];
+		for ($i = 0; $i < count($msg); $i++) $sm[$i+64] = $msg[$i];
+		return Salt::crypto_sign_open2($m, $sm, count($sm), $pk);
+	}
+	
+	public static function sign($sk, $msg)
+	{
+		$salt = Salt::instance();
+		$sk = FieldElement::fromArray(Uint::fromHex($sk)->toUint8());
+		$pk = Salt::crypto_sign_public_from_secret_key($sk);
+		$sk->setSize(64);
+		$sk->copy($pk, 32, 32);
+		$msg = Uint::fromHex($msg)->toUint8();
+		$sm = $salt->crypto_sign($msg, count($msg), $sk);
+		
+		$signature = [];
+		for($i = 0; $i < 64; $i++)
+		    $signature[$i] = $sm[$i];
+		return Uint::fromUint8Array($signature)->toHexString();
+	}
+	
+	public static function newKeyPair()
+	{
+		$salt = Salt::instance();
+		$keys = $salt->crypto_sign_keypair();
+		$keys[0] = Uint::fromUint8Array(array_slice($keys[0]->toArray(), 0, 32))->toHexString();
+		$keys[1] = Uint::fromUint8Array($keys[1])->toHexString();
+		return $keys;
 	}
 	
 	public static function keyFromAccount($acc)
@@ -28,11 +61,11 @@ class RaiBlocks
 			$crop = substr($acc, 4, 64);
 			if(preg_match('/^[13456789abcdefghijkmnopqrstuwxyz]+$/', $crop))
 			{
-				$aux = (new Uint())->fromString(substr($crop, 0, 52))->toUint4()->toArray();
+				$aux = Uint::fromString(substr($crop, 0, 52))->toUint4()->toArray();
 				array_shift($aux);
 				$key_uint4 = $aux;
-				$hash_uint8 = (new Uint())->fromString(substr($crop, 52, 60))->toUint8()->toArray();
-				$key_uint8 = (new Uint())->fromUint4Array($key_uint4)->toUint8();
+				$hash_uint8 = Uint::fromString(substr($crop, 52, 60))->toUint8()->toArray();
+				$key_uint8 = Uint::fromUint4Array($key_uint4)->toUint8();
 				
 				$key_hash = new SplFixedArray(64);
 				$b2b = new Blake2b();
@@ -43,7 +76,7 @@ class RaiBlocks
 				
 				if($hash_uint8 == $key_hash)
 				{
-					return (new Uint())->fromUint4Array($key_uint4)->toHexString();
+					return Uint::fromUint4Array($key_uint4)->toHexString();
 				}
 			}
 		}
