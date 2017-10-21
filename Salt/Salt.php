@@ -268,6 +268,29 @@ class Salt {
 
 		return array($sk, $pk);
 	}
+	
+	public function crypto_sign_public_from_secret_key($sk) {
+		$sk = Salt::decodeInput($sk);
+		if($sk->count() == 64) {
+			// its the extended sk, get just the last 32 bytes
+			$sk->slice(32, 32);
+		} else if($sk->count() != 32) {
+			throw new SaltException('crypto_sign_public_from_secret_key: secret key should be 32 or 64 bytes long');
+		}
+		
+		$az = self::hash($sk->toString());
+		$az[0] &= 248;
+		$az[31] &= 63;
+		$az[31] |= 64;
+
+		$ed = Ed25519::instance();
+		$A = new GeExtended();
+		$pk = new FieldElement(32);
+		$ed->geScalarmultBase($A, $az);
+		$ed->GeExtendedtoBytes($pk, $A);
+
+		return $pk;
+	}
 
 	/**
 	 * Signs a message using the signer's private key and returns
@@ -364,6 +387,38 @@ class Salt {
 		}
 
 		return false;
+	}
+	
+	public function crypto_sign_open2($msg, $sm, $n, $pk) {
+		$sm = Salt::decodeInput($sm);
+		
+		if($n < 64) return false;
+		
+		$m = [];
+		for($i = 0; $i < count($msg); $i++) $m[$i] = $msg[$i];
+		
+		$ed = Ed25519::instance();
+		$A  = new GeExtended();
+
+		if (!$ed->geFromBytesNegateVartime($A, $pk)) {
+			return false;
+		}
+		
+		for ($i = 0; $i < $n; $i++) $m[$i] = $sm[$i];
+		for ($i = 0; $i < 32; $i++) $m[$i+32] = $pk[$i];
+		
+		$h = self::hash($m);
+		
+		$ed->scReduce($h);
+		
+		$R = new GeProjective();
+		$rcheck = new FieldElement(32);
+		$ed->geDoubleScalarmultVartime($R, $h, $A, $sm->slice(32));
+		$ed->geToBytes($rcheck, $R);
+		
+		if ($ed->cryptoVerify32($rcheck, $sm) === 0) {
+			return $sm->slice(64, $n-64);
+		}
 	}
 
 	/**
