@@ -23,6 +23,7 @@ class Uint
 		$ret = new Uint();
 		$ret->hex = strtoupper($hex);
 		$ret->u8 = $ret->hexU8($hex);
+		$ret->u4 = $ret->hexU4($hex);
 		return $ret;
 	}
 	
@@ -99,6 +100,8 @@ class Uint
 	
 	public function hexU8($hex)
 	{
+		if(strlen($hex) % 2 != 0)
+			$hex = '0' . $hex;
 		$arr = new SplFixedArray(strlen($hex) / 2);
 		for($i = 0; $i < strlen($hex); $i+=2)
 		{
@@ -245,6 +248,21 @@ class Uint
 				$hex = "00" . $hex;
 		}
 		return $hex;
+	}
+	
+	public function reverse()
+	{
+		if($this->u8)
+		{
+			$len = count($this->u8);
+			for($i = 0; $i != $len - 1 - $i; $i++)
+			{
+				$aux = $this->u8[$i];
+				$this->u8[$i] = $this->u8[$len - 1 - $i];
+				$this->u8[$len - 1 - $i] = $aux;
+			}
+		}
+		return self::fromUint8Array($this->toUint8());
 	}
 }
 
