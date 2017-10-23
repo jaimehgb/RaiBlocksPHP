@@ -12,6 +12,10 @@ class RaiBlocksBlock extends RaiBlocks
 	
 	private $source;
 	
+	private $work;
+	private $signature;
+	private $owner_account;
+	
 	public function build()
 	{
 		$hash = '';
@@ -172,6 +176,71 @@ class RaiBlocksBlock extends RaiBlocks
 					if($res[4] >= 192)
 						return true;
 		return false;
+	}
+	
+	public function setAccount($xrb_account)
+	{
+		if(!RaiBlocks::keyFromAccount($xrb_account))
+			throw new InvalidRaiBlocksAccountException();
+		$this->owner_account = $xrb_account;
+	}
+	
+	public function setWork($work)
+	{
+		if(!$this->hash)
+			throw new IncompleteBlockException("Block hash is missing.");
+		
+		if(!self::checkWork($this->hash, $work))
+			throw new InsufficientWorkException();
+		
+		$this->work = Uint::fromHex($work);
+	}
+	
+	public function setSignature($sig)
+	{
+		if(!$this->hash)
+			throw new IncompleteBlockException("Block hash is missing.");
+		
+		if(!RaiBlocks::checkSig($this->hash->toHexString(), $sig, $this->owner_account))
+			throw new InvalidSignatureException();
+		$this->signature = Uint::fromHex($sig);
+	}
+	
+	public function getJSONRepresentation()
+	{
+		if($this->hash)
+			throw new IncompleteBlockException("Block hash is missing.");
+		if(!$this->signature)
+			throw new IncompleteBlockException("Block signature is missing.");
+		
+		$json = [];
+		
+		if($this->type == 'open')
+		{
+			$json['account'] = $this->owner_account;
+			$json['source'] = $this->source->toHexString();
+			$json['representative'] = self::accountFromKey($this->representative->toHexString());
+		}
+		else
+		{
+			$json['previous'] = $this->previous->toHexString();
+			if($this->type == 'receive')
+			{
+				$json['source'] = $this->source->toHexString();
+			}
+			else if($this->type == 'send')
+			{
+				$json['balance'] = $this->balance->toHexString();
+				$json['destination'] = self::accountFromKey($this->destination->toHexString());
+			}
+			else if($this->type == 'change')
+			{
+				$json['representative'] = self::accountFromKey($this->representative->toHexString());
+			}
+		}
+		$json['signature'] = $this->signature->toHexString();
+		$json['work'] = $this->work ? $this->work->toHexString() : "false";
+		return json_encode($json);
 	}
 	
 	public function getHash()
