@@ -82,6 +82,25 @@ class RaiBlocks
 		}
 		return false;
 	}
+	
+	public static function accountFromKey($pk)
+	{
+		if(!preg_match('/[0-9A-F]{64}/i', $pk))
+			throw new InvalidRaiBlocksKeyException("Key should be a 32 byte hex string");
+		
+		$key = Uint::fromHex($pk);
+		$checksum;
+		$hash = new SplFixedArray(64);
+		$b2b = new Blake2b();
+		$ctx = $b2b->init(null, 5);
+		$b2b->update($ctx, $key->toUint8(), 32);
+		$b2b->finish($ctx, $hash);
+		$hash = Uint::fromUint8Array(array_slice($hash->toArray(), 0, 5))->reverse();
+		
+		$checksum = $hash->toString();
+		$c_account = Uint::fromHex('0' . $pk)->toString();
+		return 'xrb_' . $c_account . $checksum;
+	}
 }
 
 
