@@ -264,6 +264,27 @@ class Uint
 		}
 		return self::fromUint8Array($this->toUint8());
 	}
+	
+	public static function expandSize($size, $uint)
+	{
+		if(get_class($uint) != 'Uint')
+			return false;
+		if(count($uint->toUint8()) < $size)
+		{
+			$u8 = $uint->toUint8();
+			$new = new SplFixedArray($size);
+			$diff = $size - count($u8);
+			for($i = 0; $i < $size; $i++)
+			{
+				if($i < $diff)
+					$new[$i] = 0;
+				else
+					$new[$i] = $u8[$i - $diff];
+			}
+			return self::fromUint8Array($new);
+		}
+		return $uint;
+	}
 }
 
 

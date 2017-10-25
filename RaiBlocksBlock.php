@@ -97,7 +97,7 @@ class RaiBlocksBlock extends RaiBlocks
 		
 		$this->previous = Uint::fromHex($previous);
 		$this->destination = Uint::fromHex($pk);
-		$this->balance = Uint::fromDec($balance);
+		$this->balance = Uint::expandSize(16, Uint::fromDec($balance));
 		$this->type = 'send';
 	}
 	
@@ -190,7 +190,7 @@ class RaiBlocksBlock extends RaiBlocks
 		if(!$this->hash)
 			throw new IncompleteBlockException("Block hash is missing.");
 		
-		if(!self::checkWork($this->hash, $work))
+		if(!self::checkWork($this->previous->toHexString(), $work))
 			throw new InsufficientWorkException();
 		
 		$this->work = Uint::fromHex($work);
@@ -198,6 +198,8 @@ class RaiBlocksBlock extends RaiBlocks
 	
 	public function setSignature($sig)
 	{
+		if(!$this->owner_account)
+			throw new IncompleteBlockException("To set a signature chain's account is needed.");
 		if(!$this->hash)
 			throw new IncompleteBlockException("Block hash is missing.");
 		
@@ -208,7 +210,7 @@ class RaiBlocksBlock extends RaiBlocks
 	
 	public function getJSONRepresentation()
 	{
-		if($this->hash)
+		if(!$this->hash)
 			throw new IncompleteBlockException("Block hash is missing.");
 		if(!$this->signature)
 			throw new IncompleteBlockException("Block signature is missing.");

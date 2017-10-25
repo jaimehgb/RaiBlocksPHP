@@ -1,7 +1,7 @@
 <?php
 
 
-require '../RaiBlocksBlock.php';
+require dirname(__DIR__) . '/RaiBlocksBlock.php';
 
 $block = new RaiBlocksBlock();
 
@@ -36,3 +36,21 @@ $block->change(
 $block->build();
 echo $block->getHash()->toHexString(); // FF14307F67B85C8F4EE903447E24818618CEA7B9C45DCCF6819F8F129CE63DB1	
 echo "\n";
+
+
+// json serialization
+
+$block->send(
+	$previous='4270F4FB3A820FE81827065F967A9589DF5CA860443F812D21ECE964AC359E05',
+	$destination='xrb_1111111111111111111111111111111111111111111111111111hifc8npp',
+	$balance=hexToDec("000000041C06DF91D202B70A40000011")
+);
+$block->build();
+
+$block->setAccount('xrb_3t6k35gi95xu6tergt6p69ck76ogmitsa8mnijtpxm9fkcm736xtoncuohr3');
+$block->setWork("7202df8a7c380578");
+$block->setSignature("047115CB577AC78F5C66AD79BBF47540DE97A441456004190F22025FE4255285F57010D962601AE64C266C98FA22973DD95AC62309634940B727AC69F0C86D03");
+
+print_r($block->getJSONRepresentation());
+
+
