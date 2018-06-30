@@ -2,9 +2,9 @@
 
 require 'Salt/autoload.php';
 require_once 'util.php';
-require 'RaiBlocksExceptions.php';
+require 'NanoExceptions.php';
 
-class RaiBlocks
+class Nano
 {
 	const MAGIC_NUMBER = "5243";   // 0x52 0x43
 	const VERSION_MAX = "01";      // 0x01
@@ -86,7 +86,7 @@ class RaiBlocks
 	public static function accountFromKey($pk)
 	{
 		if(!preg_match('/[0-9A-F]{64}/i', $pk))
-			throw new InvalidRaiBlocksKeyException("Key should be a 32 byte hex string");
+			throw new InvalidNanoKeyException("Key should be a 32 byte hex string");
 		
 		$key = Uint::fromHex($pk);
 		$checksum;
