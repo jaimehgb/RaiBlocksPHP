@@ -1,7 +1,7 @@
 <?php
-require_once 'RaiBlocks.php';
+require_once 'Nano.php';
 
-class RaiBlocksBlock extends RaiBlocks
+class NanoBlock extends Nano
 {
 	
 	private $type;
@@ -91,7 +91,7 @@ class RaiBlocksBlock extends RaiBlocks
 			throw new InvalidBlockHashException('Previous block hash is not valid.');
 		$pk = self::keyFromAccount($destination);
 		if($pk === false)
-			throw new InvalidRaiBlocksAccountException('Destination account is not valid');
+			throw new InvalidNanoAccountException('Destination account is not valid');
 		if(!is_numeric($balance) || $balance < 0)
 			throw new InvalidBalanceException('Balance should be an integer greater than 0');
 		
@@ -121,9 +121,9 @@ class RaiBlocksBlock extends RaiBlocks
 		$a_pk = self::keyFromAccount($account);
 		$r_pk = self::keyFromAccount($representative);
 		if($a_pk === false)
-			throw new InvalidRaiBlocksAccountException('Open account is not valid');
+			throw new InvalidNanoAccountException('Open account is not valid');
 		if($r_pk === false)
-			throw new InvalidRaiBlocksAccountException('Representative account is not valid');
+			throw new InvalidNanoAccountException('Representative account is not valid');
 			
 		
 		$this->source = Uint::fromHex($source);
@@ -141,7 +141,7 @@ class RaiBlocksBlock extends RaiBlocks
 		$pk = self::keyFromAccount($representative);
 		
 		if($pk === false)		
-			throw new InvalidRaiBlocksAccountException('Representative account is not valid');
+			throw new InvalidNanoAccountException('Representative account is not valid');
 		$this->previous = Uint::fromHex($previous);
 		$this->representative = Uint::fromHex($pk);
 		$this->type = "change";
@@ -180,8 +180,8 @@ class RaiBlocksBlock extends RaiBlocks
 	
 	public function setAccount($xrb_account)
 	{
-		if(!RaiBlocks::keyFromAccount($xrb_account))
-			throw new InvalidRaiBlocksAccountException();
+		if(!Nano::keyFromAccount($xrb_account))
+			throw new InvalidNanoAccountException();
 		$this->owner_account = $xrb_account;
 	}
 	
@@ -203,7 +203,7 @@ class RaiBlocksBlock extends RaiBlocks
 		if(!$this->hash)
 			throw new IncompleteBlockException("Block hash is missing.");
 		
-		if(!RaiBlocks::checkSig($this->hash->toHexString(), $sig, $this->owner_account))
+		if(!Nano::checkSig($this->hash->toHexString(), $sig, $this->owner_account))
 			throw new InvalidSignatureException();
 		$this->signature = Uint::fromHex($sig);
 	}

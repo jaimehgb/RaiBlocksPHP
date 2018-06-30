@@ -1,9 +1,9 @@
 <?php
 
 
-require dirname(__DIR__) . '/RaiBlocksBlock.php';
+require dirname(__DIR__) . '/NanoBlock.php';
 
-$block = new RaiBlocksBlock();
+$block = new NanoBlock();
 
 $block->send(
 	$previous='1967EA3553D6CEA90987D6C2CD5F101278823F497DA5527A6E1C0F2F3E5BF801',
